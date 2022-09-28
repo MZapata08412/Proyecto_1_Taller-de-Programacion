@@ -1,0 +1,7 @@
+codigo descripcion existencia maximo costo precio venta
+12 Galleta_Chiki 12 35 250 500 6000
+13 Pinguino 10 30 250 500 6000
+14 Platanitos_verdes 10 35 250 500 7000
+15 Platanitos_maduros 3 30 250 500 9500
+1 lata 2 25 500 1000 6000
+1 lata 2 25 500 1000 6000

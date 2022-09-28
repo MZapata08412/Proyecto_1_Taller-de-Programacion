@@ -1,0 +1,4 @@
+Tipo Descripcion Cantidad
+B 1000 20
+B 500 20
+M 500 30
