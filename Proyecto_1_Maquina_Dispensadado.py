@@ -7,9 +7,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-import random
-import math
-from threading import *
+
 import time
 from datetime import date
 
@@ -55,7 +53,7 @@ def comprar_w(): #Funcion de venta y cobro de productos
         ventanaPago.minsize(600,550)
         ventanaPago.configure(background="#CCCCFF")
         ventanaPago.resizable(width=NO,height=NO)
-        print("Seleccion de producto: " + str(var.get()))
+        #print("Seleccion de producto: " + str(var.get()))
         lienzo=Canvas(ventanaPago,width=500,height=400,bg="#CCCCFF")
         lienzo.place(x=50,y=60)
         def finalizarCompra():#Funcion que finaliza la compra y genera el vuelto de la persona, luego se regresa a ventana principal
@@ -74,7 +72,7 @@ def comprar_w(): #Funcion de venta y cobro de productos
                 stripped_line = line.strip()
                 line_list = stripped_line.split()
                 list_of_lists.append(line_list)
-                print(list_of_lists)
+                #print(list_of_lists)
             a_file.close()
 
 
@@ -112,21 +110,21 @@ def comprar_w(): #Funcion de venta y cobro de productos
 
             try:
                 if opcion==1:
-                    print("Billete de mil")
+                    #print("Billete de mil")
                     vuelto=1000-int(datos[pos][5])
-                    print(vuelto)
+                    #print(vuelto)
                     pago=1000
                     messagebox.showinfo(message="Venta exitosa, su vuelto es: "+str(vuelto), title="vuelto")
                 elif opcion==2:
-                    print("Billete de 500")
+                    #print("Billete de 500")
                     vuelto=500-int(datos[pos][5])
-                    print(vuelto)
+                    #print(vuelto)
                     pago=500
                     messagebox.showinfo(message="Venta exitosa, su vuelto es: "+str(vuelto), title="vuelto")
                 elif opcion==3:
-                    print("Moneda de 500")
+                    #print("Moneda de 500")
                     vuelto=500-int(datos[pos][5])
-                    print(vuelto)
+                    #print(vuelto)
                     pago=500
                     messagebox.showinfo(message="Venta exitosa, su vuelto es: "+str(vuelto), title="vuelto")
             except:
@@ -134,7 +132,7 @@ def comprar_w(): #Funcion de venta y cobro de productos
             #print("VUELTO "+str(vuelto))
             #print(list_of_lists)
 
-            new=open("movimientos.txt","a")
+            new=open("movimientos.txt","a")#Se crea el archivo de movimientos
             global transaccion
             today = date.today()
             transaccion+=1
@@ -142,8 +140,9 @@ def comprar_w(): #Funcion de venta y cobro de productos
             t=time.localtime()
             tiempo=time.strftime("%H:%M", t)
             
-            line=new.writelines("EN "+str(transaccion)+" "+fecha+" "+tiempo +" "+str(datos[pos][0])+" "+str(1)+" "
-                                +" "+str(datos[pos][5])+" "+str(pago)+" "+str(vuelto)+"\n")
+            line=new.writelines("EN "+str(transaccion)+" "+fecha+" "+tiempo +" "+str(datos[pos][0])+" "+str(datos[pos][1])+" "+str(1)+" "
+                                +str(int(datos[pos][3])-int(datos[pos][2]))+" "+str(datos[pos][5])+" "+str(pago)+" "+str(vuelto)+" "+str(datos[pos][2])
+                                +" "+str(datos[pos][6])+"\n")
             new.close()
             
             ventanaPago.destroy()
@@ -304,7 +303,7 @@ def comprar_w(): #Funcion de venta y cobro de productos
     radiobutton8 = tk.Radiobutton(lienzo,text="8 Gin Lata                  ₡500", bg="#CCCCFF",variable=var, value=8, command=GetVariable)
     radiobutton8.deselect()
     radiobutton8.place(x=10,y=230)
-    radiobutton9 = tk.Radiobutton(lienzo,text="9 Coca Desechable         ₡500", bg="#CCCCFF",variable=var, value=9, command=GetVariable)
+    radiobutton9 = tk.Radiobutton(lienzo,text="9 Coca Light                   ₡500", bg="#CCCCFF",variable=var, value=9, command=GetVariable)
     radiobutton9.deselect()
     radiobutton9.place(x=350,y=20)
     radiobutton10 = tk.Radiobutton(lienzo,text="10 Fresco Leche              ₡500", bg="#CCCCFF",variable=var, value=10, command=GetVariable)
@@ -355,11 +354,12 @@ def password():#Se genera la ventana para la captura de la contrase del adminios
             ventana_admin()
         else:
             messagebox.showinfo(message="Contraseña Incorrecta: ", title="Administrador")
+
     def ventana_admin():#Ventana con las opciones del administrador
         ventana.withdraw()
         ventana_admin=Toplevel()
         ventana_admin.title("ADMINISTRADOR")
-        ventana_admin.minsize(700,600)
+        ventana_admin.minsize(730,600)
         ventana_admin.configure(background="#CCCCFF")
         ventana_admin.resizable(width=NO,height=NO)
 
@@ -369,10 +369,11 @@ def password():#Se genera la ventana para la captura de la contrase del adminios
         frame_admin.configure(background="#CCCCFF")
         frame_admin.pack(fil=BOTH, expand=1)
         #creacion de un lienzo o canvas para para administrador
-        my_canvas=Canvas(frame_admin,width=500,height=400,bg="#CCCCFF")
+        my_canvas=Canvas(frame_admin,width=600,height=400,bg="#CCCCFF")
         #my_canvas.configure(background="#CCCCFF")
         #my_canvas.pack(side=RIGHT,fill=BOTH,expand=1)
-        my_canvas.place(x=100,y=60)
+        my_canvas.pack(expand=1)
+        my_canvas.place(x=50,y=60)
 
         #lienzo=Canvas(ventanaPago,width=500,height=400,bg="#CCCCFF")
         #lienzo.place(x=50,y=60)
@@ -390,42 +391,78 @@ def password():#Se genera la ventana para la captura de la contrase del adminios
         opcion=IntVar()
 
         #Funciones de los botones de la ventana administrador
+        def cerrar_Admin():
+            ventana_admin.destroy()
+            ventana.deiconify()
         def Reset():
             archivo=open("movimientos.txt","w")
-            line=archivo.writelines("Tipo #Transaccion Date Time Code Cantidad Monto Pago Vuelto"+"\n")
+            line=archivo.writelines("Tipo #Transaccion Date Time Code Descripcion Cantidad Vendidas Monto Pago Vuelto Existencia Ventas"+"\n")
             archivo.close()
             ventana_admin.destroy()
             messagebox.showinfo(message="Datos Reiniciados", title="Administrador")
             ventana.deiconify()
 
         def Venta_R():
-            return 0
+            a_file = open("movimientos.txt", "r")#Leyendo el archivo de texto de productos disponibles
+
+            m_datos = [] #Variable que lee el archivo de texto con los productos disponibles
+            for line in a_file:#Ciclo que genera una matriz con los datos leidos del archivo .txt de los producto disponibles
+                stripped_line = line.strip()
+                line_list = stripped_line.split()
+                m_datos.append(line_list)
+            #print("-----Lista Generada------")
+            #print(m_datos)
+            #print(type(m_datos[1][2]))
+            a_file.close()
+            pos=len(m_datos)
+            for i in range(pos):
+                tk.Label(second_frame,text=m_datos[i][4]+" "+m_datos[i][5]+" "+m_datos[i][11]+" "+m_datos[i][7]+" "+m_datos[i][12]
+                                ,font=("Helvetica",10),foreground="Black",
+                                width=70, height=1, bg="#CCCCFF").grid(row=i,column=0)
+
+        def Venta_D():
+            a_file = open("movimientos.txt", "r")#Leyendo el archivo de texto de productos disponibles
+
+            m_datos = [] #Variable que lee el archivo de texto con los productos disponibles
+            for line in a_file:#Ciclo que genera una matriz con los datos leidos del archivo .txt de los producto disponibles
+                stripped_line = line.strip()
+                line_list = stripped_line.split()
+                m_datos.append(line_list)
+            #print("-----Lista Generada------")
+            #print(m_datos)
+            #print(type(m_datos[1][2]))
+            a_file.close()
+            pos=len(m_datos)
+            for i in range(pos):
+                tk.Label(second_frame,text=m_datos[i][4]+" "+m_datos[i][5]+" "+m_datos[i][1]+" "+m_datos[i][2]+" "+m_datos[i][3]
+                         +" "+m_datos[i][6]+" "+m_datos[i][8],font=("Helvetica",10),foreground="Black",width=70, height=1, bg="#CCCCFF").grid(row=i,column=0)
+            
+            
+            
+            
+            
         
         
         boton_reset=Button(ventana_admin,text="Corte/Reset",font=("Helvetica",12),background="Magenta",command=Reset)#.grid(row=10,column=20)
-        boton_reset.place(x=20,y=500)
-        boton_Apagar=Button(ventana_admin,text="Apagar",font=("Helvetica",12),background="Magenta",command=ventana.destroy)#.grid(row=12,column=20)
-        boton_Apagar.place(x=200,y=500)
-        boton_VentaR=Button(ventana_admin,text="Venta/Resume",font=("Helvetica",12),background="Magenta",command=None)#.grid(row=14,column=20)
-        boton_VentaR.place(x=300,y=500)
-        boton_VentaD=Button(ventana_admin,text="Venta Detallada",font=("Helvetica",12),background="Magenta",command=None)#.grid(row=16,column=20)
-        boton_VentaD.place(x=500,y=500)
+        boton_reset.place(x=50,y=500)
+        boton_Apagar=Button(ventana_admin,text="Apagar/Off",font=("Helvetica",12),background="Magenta",command=ventana.destroy)#.grid(row=12,column=20)
+        boton_Apagar.place(x=210,y=500)
+        boton_VentaR=Button(ventana_admin,text="Venta/Resume",font=("Helvetica",12),background="Magenta",command=Venta_R)#.grid(row=14,column=20)
+        boton_VentaR.place(x=350,y=500)
+        boton_VentaD=Button(ventana_admin,text="Detallada/Detailed",font=("Helvetica",12),background="Magenta",command=Venta_D)#.grid(row=16,column=20)
+        boton_VentaD.place(x=510,y=500)
+        boton_return=Button(ventana_admin,text="Regresar/Return",font=("Helvetica",12),background="Magenta",command=cerrar_Admin)#.grid(row=16,column=20)
+        boton_return.place(x=50,y=550)
+        
         
 
         
 
         #Labels
-        label=tk.Label(ventana_admin,text="Administrador",font=("Helvetica",20),foreground="Black",width=20, height=1, bg="#CCCCFF")#.grid(row=500,column=200)
-        label.place(x=160,y=10)
+        label=tk.Label(ventana_admin,text="Administrador/Administrator",font=("Helvetica",20),foreground="Black",width=30, height=1, bg="#CCCCFF")#.grid(row=500,column=200)
+        label.place(x=120,y=10)
         
-        label2=tk.Label(second_frame,text="Tipo "+
-                       " #Transaccion  Date  Time  Code  Existence  Amount  Pay  Change ",font=("Helvetica",10),foreground="Black",width=60, height=1, bg="#CCCCFF").grid(row=0,column=0)
-
-        label3=tk.Label(second_frame,text="Tipo "+
-                       " #Transaccion  Date  Time  Code  Existence  Amount  Pay  Change ",font=("Helvetica",10),foreground="Black",
-                        width=60, height=1, bg="#CCCCFF").grid(row=1,column=0)
-
-
+        
         
         
 
@@ -449,17 +486,64 @@ def password():#Se genera la ventana para la captura de la contrase del adminios
     E_password.place(x=85,y=80)
     boton_pasword=Button(ventana_pasword,text="Ingresar",font=("Helvetica",12),background="Magenta",command=contraseña)
     boton_pasword.place(x=110,y=120)
+
+
+    ventana_pasword.mainloop()#Loop de la ventana password de ingresos a datos de administrador
+
+        
+def Ventana_about():#Se define la venta about del creador de la aplicacion
+    ventana.withdraw()
+    ventana_about=Toplevel()
+    ventana_about.title("Acerca de/About")
+    ventana_about.minsize(800,650)
+    ventana_about.configure(background="#CCCCFF")
+    ventana_about.resizable(width=NO,height=NO)
+    #Definicion de fucion cerrar para ventana aboout
+    def cerrar_about():
+        ventana_about.destroy()
+        ventana.deiconify()
+
+
+
+    #Creacion de etiquetas para la ventana about
+    Label=tk.Label(ventana_about,text="Country/País: Costa Rica",font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+    Label.place(x=230,y=20)
+    Label2=tk.Label(ventana_about,text="Tecnológico de Costa Rica/ Ingeniería en Computadores",font=("Times New Roman","15"),foreground="Black",width=50, height=1, bg="#CCCCFF")
+    Label2.place(x=150,y=50)
+    Label3=tk.Label(ventana_about,text="Taller de Programación 2022 Group 01",font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+    Label3.place(x=230,y=80)
+    Label4=tk.Label(ventana_about,text="Professor: Jeff Schmidt Peralta",font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+    Label4.place(x=230,y=110)
+    Label5=tk.Label(ventana_about,text="Student/Estudiante: Manuel Zapata Zamora",font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+    Label5.place(x=230,y=140)
+    Label7=tk.Label(ventana_about,text="Librerías/Libraries: Tkinter , time, messagebox",font=("Times New Roman","15"),foreground="Black",width=50, height=1, bg="#CCCCFF")
+    Label7.place(x=150,y=170)
+    Label8=tk.Label(ventana_about,text="Modulos: los de las librerías",font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+    Label8.place(x=230,y=200)
+    Label9=tk.Label(ventana_about,text="Intrucciones: Para el uso de este programa se debe tener isntalado python 3.10",font=("Times New Roman","15"),foreground="Black",
+                    width=60, height=1, bg="#CCCCFF")
+    Label9.place(x=100,y=230)
+    Label10=tk.Label(ventana_about,text="Para el manejo de archivo se usan archivos txt para guardas datos",font=("Times New Roman","15"),foreground="Black",
+                    width=60, height=1, bg="#CCCCFF")
+    Label10.place(x=100,y=260)
     
-        
+    #Creacion del boton return a pantalla principal del programa
+    boton_regresar=Button(ventana_about,text="Regresar",font=("Helvetica",15),background="Magenta",command=cerrar_about)
+    boton_regresar.place(x=350, y= 500)
+
+
+    
+
+    
+
+    
     
 
 
 
-
-    ventana_pasword.mainloop()
-
-        
-        
+    ventana_about.mainloop()
+    
+    
     
     
     
@@ -472,7 +556,7 @@ Label1=tk.Label(text="Welcome/Bienvenido",font=("Times New Roman","20"),foregrou
 #Definición de Botones para la ventana Principal
 boton_comprar=Button(ventana,text="Buy/Comprar",font=("Helvetica",15),background="Magenta",command=comprar_w)
 boton_admin=Button(ventana,text="Administrador/Administrator",font=("Helvetica",15),background="Magenta",command=password)
-boton_about=Button(ventana,text="About",font=("Helvetica",15),background="Magenta",command=None)
+boton_about=Button(ventana,text="About",font=("Helvetica",15),background="Magenta",command=Ventana_about)
 
 
 #Colacación de los Label y botones en ventana principal
