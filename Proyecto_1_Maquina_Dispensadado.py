@@ -11,6 +11,8 @@ import random
 import math
 from threading import *
 import time
+from datetime import date
+
 from timeit import default_timer
 from tkinter.simpledialog import askstring
 from tkinter.messagebox import showinfo
@@ -21,10 +23,10 @@ ventana.title("Máquina Dispensadora")
 ventana.configure(background="#CCCCFF")
 ventana.geometry("1000x650")
 ventana.resizable(False,False)
-
+transaccion=0
 
 #Definición de ventanas secundarias y sus funciones
-def comprar_w():
+def comprar_w(): #Funcion de venta y cobro de productos
     ventana.withdraw()
     comprarWindow=Toplevel()
     comprarWindow.title("Comprar/Buy")
@@ -36,7 +38,16 @@ def comprar_w():
     #Aca van las funciones para la ventana de ventas
     
     
-    
+    def Data():#Esta funcion creara la matriz de datos para estar trabajando el archivo txt de productos
+        a_file = open("archivo.txt", "r")
+        list_of_lists = []
+        for line in a_file:
+            stripped_line = line.strip()
+            line_list = stripped_line.split()
+            list_of_lists.append(line_list)
+        
+        return list_of_lists
+        
     def Pagar():#Funcion para generar ventana de metodo de pago del producto, así como el vuelto
         comprarWindow.withdraw()
         ventanaPago=Toplevel()
@@ -44,27 +55,114 @@ def comprar_w():
         ventanaPago.minsize(600,550)
         ventanaPago.configure(background="#CCCCFF")
         ventanaPago.resizable(width=NO,height=NO)
-        print(var.get())
+        print("Seleccion de producto: " + str(var.get()))
         lienzo=Canvas(ventanaPago,width=500,height=400,bg="#CCCCFF")
         lienzo.place(x=50,y=60)
         def finalizarCompra():#Funcion que finaliza la compra y genera el vuelto de la persona, luego se regresa a ventana principal
             tipo_moneda=moneda.get()
             if tipo_moneda==1:
-                print(tipo_moneda)
+                print("tipo de moneda seleccionada: "+str(tipo_moneda))
             elif tipo_moneda==2:
-                print(tipo_moneda)
+               print("tipo de moneda seleccionada: "+str(tipo_moneda))
             elif tipo_moneda==3:
-                print(tipo_moneda)
+                print("tipo de moneda seleccionada: "+str(tipo_moneda))
+
+            a_file = open("archivo.txt", "r")#Se abre el archivo para ser leído y generar una matriz de datos
+
+            list_of_lists = []
+            for line in a_file:
+                stripped_line = line.strip()
+                line_list = stripped_line.split()
+                list_of_lists.append(line_list)
+                print(list_of_lists)
+            a_file.close()
+
+
+            archivo=open("archivo.txt","w")#Se crea el método de escritura para editar el archivo
+            pos=len(list_of_lists)
+            option=var.get()
+            
+            for i in range(pos):
+                if option!=i:
+                    line=archivo.writelines(str(list_of_lists[i][0])+" "+
+                    str(list_of_lists[i][1])+" "+
+                    str(list_of_lists[i][2])+" "+
+                    str(list_of_lists[i][3])+" "+
+                    str(list_of_lists[i][4])+" "+
+                    str(list_of_lists[i][5])+" "+
+                    str(list_of_lists[i][6])+"\n")
+                else:
+                    line=archivo.writelines(str(list_of_lists[i][0])+" "+
+                    str(list_of_lists[i][1])+" "+
+                    str(int(list_of_lists[i][2])-1)+" "+  #Acá se resta el producto vendido
+                    str(list_of_lists[i][3])+" "+
+                    str(list_of_lists[i][4])+" "+
+                    str(list_of_lists[i][5])+" "+
+                    str(int(list_of_lists[i][6])+int(list_of_lists[i][5]))+"\n")#Acá se suma el precio a las ventas totales del producto
+            archivo.close()
+
+
+
+            opcion=moneda.get()
+            pos=var.get()
+            vuelto=0
+            datos=Data()
+            pago=0
+            #print("VEEEERRRRRR: "+str(opcion))
+
+            try:
+                if opcion==1:
+                    print("Billete de mil")
+                    vuelto=1000-int(datos[pos][5])
+                    print(vuelto)
+                    pago=1000
+                    messagebox.showinfo(message="Venta exitosa, su vuelto es: "+str(vuelto), title="vuelto")
+                elif opcion==2:
+                    print("Billete de 500")
+                    vuelto=500-int(datos[pos][5])
+                    print(vuelto)
+                    pago=500
+                    messagebox.showinfo(message="Venta exitosa, su vuelto es: "+str(vuelto), title="vuelto")
+                elif opcion==3:
+                    print("Moneda de 500")
+                    vuelto=500-int(datos[pos][5])
+                    print(vuelto)
+                    pago=500
+                    messagebox.showinfo(message="Venta exitosa, su vuelto es: "+str(vuelto), title="vuelto")
+            except:
+                messagebox.showinfo(message="Error", title="vuelto")
+            #print("VUELTO "+str(vuelto))
+            #print(list_of_lists)
+
+            new=open("movimientos.txt","a")
+            global transaccion
+            today = date.today()
+            transaccion+=1
+            fecha=today.strftime("%m/%d/%y")
+            t=time.localtime()
+            tiempo=time.strftime("%H:%M", t)
+            
+            line=new.writelines("EN "+str(transaccion)+" "+fecha+" "+tiempo +" "+str(datos[pos][0])+" "+str(1)+" "
+                                +" "+str(datos[pos][5])+" "+str(pago)+" "+str(vuelto)+"\n")
+            new.close()
+            
             ventanaPago.destroy()
             ventana.deiconify()##Reaparece la ventana principal
-        def boton_pago():
+            
+        def boton_pago():#Este boton se activa para realizar el pago cuando se selecciona un producto de entrada
             opcion=moneda.get()
+            pos=var.get()
+            vuelto=0
+            datos=Data()
             if opcion==0:
-                botonHome = Button(ventanaPago, text="Finalizar Compra", command=finalizarCompra,bg="#BF1134",fg="white",font=("Helvetica",15),state="disable")
+                botonHome = Button(ventanaPago, text="Pagar/Pay", command=finalizarCompra,bg="#BF1134",fg="white",font=("Helvetica",15),state="disable")
                 botonHome.place(x=50,y=475)
             else:
-                botonHome = Button(ventanaPago, text="Finalizar Compra", command=finalizarCompra,bg="#BF1134",fg="white",font=("Helvetica",15),state="normal")
+                botonHome = Button(ventanaPago, text="Pagar/Pay", command=finalizarCompra,bg="#BF1134",fg="white",font=("Helvetica",15),state="normal")
                 botonHome.place(x=50,y=475)
+            
+                    
+                    
             
         
           
@@ -83,15 +181,15 @@ def comprar_w():
 
         label1=tk.Label(ventanaPago,text="Seleccione el tipo de Pago",font=("Times New Roman","15"),foreground="Black",width=25, height=1, bg="#CCCCFF")
         label1.place(x=15,y=30)
+        productos=Data()
+        label2=tk.Label(lienzo,text="Monto a Pagar: "+str(productos[var.get()][5]),font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+        label2.place(x=30,y=350)
+        label3=tk.Label(lienzo,text="Producto a Comprar: "+productos[var.get()][1],font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+        label3.place(x=20,y=250)
+        label4=tk.Label(lienzo,text="Disponible: "+ productos[var.get()][2],font=("Times New Roman","15"),foreground="Black",width=30, height=1, bg="#CCCCFF")
+        label4.place(x=20,y=300)
         
             
-
-        
-        
-        
-        
-        
-
 
         ventanaPago.mainloop()
         
@@ -109,12 +207,12 @@ def comprar_w():
             
             
         
-        print(opcion)
+        
     
 
     
         
-    a_file = open("productos.txt", "r")#Leyendo el archivo de texto de productos disponibles
+    a_file = open("archivo.txt", "r")#Leyendo el archivo de texto de productos disponibles
 
     m_datos = [] #Variable que lee el archivo de texto con los productos disponibles
     for line in a_file:#Ciclo que genera una matriz con los datos leidos del archivo .txt de los producto disponibles
@@ -180,8 +278,8 @@ def comprar_w():
     #Definición de botones en ventana de compras
     
     
-    botonHome = Button(comprarWindow, text="Cancelar", command=close,bg="#BF1134",fg="white",font=("Helvetica",15),state="normal")
-    botonHome.place(x=650,y=475)
+    botonHome = Button(comprarWindow, text="Cancelar/Cancel", command=close,bg="#BF1134",fg="white",font=("Helvetica",15),state="normal")
+    botonHome.place(x=590,y=475)
     radiobutton1=tk.Radiobutton(lienzo,text="1 Coca Lata                ₡500",bg="#CCCCFF",  variable=var, value=1, command=GetVariable)
     radiobutton1.deselect()
     radiobutton1.place(x=10,y=20)
@@ -235,6 +333,133 @@ def comprar_w():
 
 
     comprarWindow.mainloop()
+
+
+def password():#Se genera la ventana para la captura de la contrase del adminiostrador
+    ventana.withdraw()
+    ventana_pasword=Toplevel()
+    ventana_pasword.title("Administrador/Administrator")
+    ventana_pasword.minsize(300,250)
+    ventana_pasword.configure(background="#CCCCFF")
+    ventana_pasword.resizable(width=NO,height=NO)
+    password=StringVar()
+
+
+    #Se definen ventanas para la ventana de administrador, así como funciones de esta parte.
+    def contraseña():#Funcion que verifica la contraseña del administrador
+        contraseña="admin"
+        p=password.get()
+        if contraseña==p:
+            messagebox.showinfo(message="Contraseña correcta: ", title="Administrador")
+            ventana_pasword.destroy()
+            ventana_admin()
+        else:
+            messagebox.showinfo(message="Contraseña Incorrecta: ", title="Administrador")
+    def ventana_admin():#Ventana con las opciones del administrador
+        ventana.withdraw()
+        ventana_admin=Toplevel()
+        ventana_admin.title("ADMINISTRADOR")
+        ventana_admin.minsize(700,600)
+        ventana_admin.configure(background="#CCCCFF")
+        ventana_admin.resizable(width=NO,height=NO)
+
+        #Se definen botones y labels para esta seccion del código
+        #creacion de frame
+        frame_admin=Frame(ventana_admin)
+        frame_admin.configure(background="#CCCCFF")
+        frame_admin.pack(fil=BOTH, expand=1)
+        #creacion de un lienzo o canvas para para administrador
+        my_canvas=Canvas(frame_admin,width=500,height=400,bg="#CCCCFF")
+        #my_canvas.configure(background="#CCCCFF")
+        #my_canvas.pack(side=RIGHT,fill=BOTH,expand=1)
+        my_canvas.place(x=100,y=60)
+
+        #lienzo=Canvas(ventanaPago,width=500,height=400,bg="#CCCCFF")
+        #lienzo.place(x=50,y=60)
+        #Creacion del scroll bar
+        my_scrollbar=ttk.Scrollbar(frame_admin,orient=VERTICAL,command=my_canvas.yview)
+        my_scrollbar.pack(side=RIGHT,fill=Y)
+        #Configuracion del canvas
+        my_canvas.configure(yscrollcommand=my_scrollbar.set)
+        my_canvas.bind('<Configure>',lambda e: my_canvas.configure(scrollregion=my_canvas.bbox("all")))
+        #Creacion de otro frame dentro del canva
+        second_frame=Frame(my_canvas)
+        #Agregar el nuevo frame a la ventana administrador
+        my_canvas.create_window((0,0),window=second_frame,anchor="nw")
+        #Botones de ventana admin
+        opcion=IntVar()
+
+        #Funciones de los botones de la ventana administrador
+        def Reset():
+            archivo=open("movimientos.txt","w")
+            line=archivo.writelines("Tipo #Transaccion Date Time Code Cantidad Monto Pago Vuelto"+"\n")
+            archivo.close()
+            ventana_admin.destroy()
+            messagebox.showinfo(message="Datos Reiniciados", title="Administrador")
+            ventana.deiconify()
+
+        def Venta_R():
+            return 0
+        
+        
+        boton_reset=Button(ventana_admin,text="Corte/Reset",font=("Helvetica",12),background="Magenta",command=Reset)#.grid(row=10,column=20)
+        boton_reset.place(x=20,y=500)
+        boton_Apagar=Button(ventana_admin,text="Apagar",font=("Helvetica",12),background="Magenta",command=ventana.destroy)#.grid(row=12,column=20)
+        boton_Apagar.place(x=200,y=500)
+        boton_VentaR=Button(ventana_admin,text="Venta/Resume",font=("Helvetica",12),background="Magenta",command=None)#.grid(row=14,column=20)
+        boton_VentaR.place(x=300,y=500)
+        boton_VentaD=Button(ventana_admin,text="Venta Detallada",font=("Helvetica",12),background="Magenta",command=None)#.grid(row=16,column=20)
+        boton_VentaD.place(x=500,y=500)
+        
+
+        
+
+        #Labels
+        label=tk.Label(ventana_admin,text="Administrador",font=("Helvetica",20),foreground="Black",width=20, height=1, bg="#CCCCFF")#.grid(row=500,column=200)
+        label.place(x=160,y=10)
+        
+        label2=tk.Label(second_frame,text="Tipo "+
+                       " #Transaccion  Date  Time  Code  Existence  Amount  Pay  Change ",font=("Helvetica",10),foreground="Black",width=60, height=1, bg="#CCCCFF").grid(row=0,column=0)
+
+        label3=tk.Label(second_frame,text="Tipo "+
+                       " #Transaccion  Date  Time  Code  Existence  Amount  Pay  Change ",font=("Helvetica",10),foreground="Black",
+                        width=60, height=1, bg="#CCCCFF").grid(row=1,column=0)
+
+
+        
+        
+
+
+        
+        
+        
+        
+
+
+        
+        
+
+    def close():#Ventana para cerrar la ventana pasword
+        ventana_pasword.destroy()
+        ventana_admin()
+    #Botones para la captura y verificacion de la contraseña de administrador
+    label=tk.Label(ventana_pasword,text="Ingrese contraseña/ Enter pasword",foreground="Black",width=30, height=1, bg="#CCCCFF")
+    label.place(x=40,y=50)
+    E_password=Entry(ventana_pasword,show="*",textvariable=password,width=20)
+    E_password.place(x=85,y=80)
+    boton_pasword=Button(ventana_pasword,text="Ingresar",font=("Helvetica",12),background="Magenta",command=contraseña)
+    boton_pasword.place(x=110,y=120)
+    
+        
+    
+
+
+
+
+    ventana_pasword.mainloop()
+
+        
+        
     
     
     
@@ -246,7 +471,7 @@ Label1=tk.Label(text="Welcome/Bienvenido",font=("Times New Roman","20"),foregrou
 
 #Definición de Botones para la ventana Principal
 boton_comprar=Button(ventana,text="Buy/Comprar",font=("Helvetica",15),background="Magenta",command=comprar_w)
-boton_admin=Button(ventana,text="Administrador/Administrator",font=("Helvetica",15),background="Magenta",command=None)
+boton_admin=Button(ventana,text="Administrador/Administrator",font=("Helvetica",15),background="Magenta",command=password)
 boton_about=Button(ventana,text="About",font=("Helvetica",15),background="Magenta",command=None)
 
 
@@ -260,4 +485,4 @@ boton_about.place(x=430,y=350)
 
 
 
-ventana.mainloop()
+ventana.mainloop() #Loop de la ventana principal del sistema de la aplicación

@@ -1,0 +1,1 @@
+Tipo #Transaccion Date Time Code Cantidad Monto Pago Vuelto
