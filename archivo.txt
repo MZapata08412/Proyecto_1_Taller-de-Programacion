@@ -1,7 +1,7 @@
 codigo descripcion existencia maximo costo precio venta
 1 Coca_lata 27 30 300 500 6500
 2 Coca_lata_light 28 30 300 500 5500
-3 Coca_desechable 26 30 600 1000 8500
+3 Coca_desechable 24 30 600 1000 10500
 4 Fanta_lata 30 30 300 500 4500
 5 Fanta_desechable 30 30 300 500 4500
 6 Pepsi_lata 29 30 300 500 5000
